@@ -5,17 +5,16 @@ import checkers.core.CheckersSearcher;
 import checkers.core.Move;
 import core.Duple;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.function.ToIntFunction;
 
-public class AlphaBeta extends CheckersSearcher {
+public class SearchUntilQuiescent extends CheckersSearcher{
     private int numNodes = 0;
     private int win = Integer.MAX_VALUE;
     private int lose = -win;
 
-    public AlphaBeta(ToIntFunction<Checkerboard> e) {
+    public SearchUntilQuiescent(ToIntFunction<Checkerboard> e) {
         super(e);
     }
 
@@ -30,6 +29,7 @@ public class AlphaBeta extends CheckersSearcher {
     }
 
     private Optional<Duple<Integer, Move>> selectMoveHelp(Checkerboard board, int depth, int alpha, int beta) {
+        depth += 1;
         ArrayList<Checkerboard> nextMoves = board.getNextBoards();
         ArrayList<Duple<Integer, Move>> moveList = new ArrayList<>();
         int scoreFor = getEvaluator().applyAsInt(board);
@@ -39,7 +39,7 @@ public class AlphaBeta extends CheckersSearcher {
             }
             return Optional.of(new Duple<>(lose, board.getLastMove()));
         }
-        if (depth >= getDepthLimit()) {
+        if (depth >= getDepthLimit() && board.allCaptureMoves(board.getCurrentPlayer()).isEmpty()) {
             return Optional.of(new Duple<>(scoreFor, board.getLastMove()));
         }
         for (Checkerboard c : nextMoves) {

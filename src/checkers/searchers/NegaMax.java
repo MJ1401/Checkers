@@ -51,7 +51,7 @@ public class NegaMax extends CheckersSearcher {
             moveList.add(new Duple<>(recursiveResult.get().getFirst() * negation, c.getLastMove()));
         }
         int max = -Integer.MAX_VALUE;
-        Move m = board.getLastMove();
+        Move m = null;
         for (Duple<Integer, Move> b:moveList) {
             if (b.getFirst() >= max) {
                 max = b.getFirst();

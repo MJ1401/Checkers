@@ -5,17 +5,18 @@ import checkers.core.CheckersSearcher;
 import checkers.core.Move;
 import core.Duple;
 
-import javax.swing.text.html.Option;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Optional;
+import java.util.PriorityQueue;
 import java.util.function.ToIntFunction;
 
-public class AlphaBeta extends CheckersSearcher {
+public class OrderingHeuristic extends CheckersSearcher {
     private int numNodes = 0;
     private int win = Integer.MAX_VALUE;
     private int lose = -win;
 
-    public AlphaBeta(ToIntFunction<Checkerboard> e) {
+    public OrderingHeuristic(ToIntFunction<Checkerboard> e) {
         super(e);
     }
 
@@ -39,10 +40,15 @@ public class AlphaBeta extends CheckersSearcher {
             }
             return Optional.of(new Duple<>(lose, board.getLastMove()));
         }
-        if (depth >= getDepthLimit()) {
+        if (depth >= getDepthLimit() && board.allCaptureMoves(board.getCurrentPlayer()).isEmpty()) {
             return Optional.of(new Duple<>(scoreFor, board.getLastMove()));
         }
-        for (Checkerboard c : nextMoves) {
+
+        PriorityQueue<Checkerboard> bestBoards = new PriorityQueue<>(Comparator.comparingInt(b -> getEvaluator().applyAsInt(b)));
+        for (Checkerboard a:nextMoves) {
+            bestBoards.add(a);
+        }
+        for (Checkerboard c : bestBoards) {
             numNodes += 1;
             if (board.getCurrentPlayer() != c.getCurrentPlayer()) {
                 Optional<Duple<Integer, Move>> recursiveResult = selectMoveHelp(c, depth + 1, beta*-1, alpha*-1);
